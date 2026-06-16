@@ -79,30 +79,26 @@ class SyncSeedImagesSeeder extends Seeder
         foreach ($users as $email => $sourceUrl) {
             $user = User::query()->where('email', $email)->first();
 
-            if (! $user instanceof User || ! is_string($user->avatar_url)) {
-                continue;
-            }
-
-            if (str_starts_with($user->avatar_url, 'http')) {
-                continue;
-            }
-
-            $relativePath = str_starts_with($user->avatar_url, '/storage/')
-                ? substr($user->avatar_url, strlen('/storage/'))
-                : $user->avatar_url;
-
-            if (Storage::disk('public')->exists($relativePath)) {
+            if (! $user instanceof User) {
                 continue;
             }
 
             $slug = str_replace('.', '-', explode('@', $email)[0]);
+            $expectedPath = 'seed/avatars/'.Str::slug($slug).'.jpg';
+
+            if (Storage::disk('public')->exists($expectedPath)) {
+                $user->update([
+                    'avatar_url' => $this->publicImageUrl($expectedPath, $sourceUrl),
+                ]);
+
+                continue;
+            }
+
             $path = $this->downloadPublicImage($sourceUrl, 'seed/avatars', $slug);
 
-            if ($path) {
-                $user->update([
-                    'avatar_url' => $this->publicImageUrl($path, $sourceUrl),
-                ]);
-            }
+            $user->update([
+                'avatar_url' => $this->publicImageUrl($path, $sourceUrl),
+            ]);
         }
     }
 }
