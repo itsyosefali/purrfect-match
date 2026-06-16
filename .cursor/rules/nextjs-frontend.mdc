@@ -1,0 +1,23 @@
+---
+description: Next.js frontend conventions
+globs: frontend/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Next.js Frontend
+
+- App Router in `src/app/`; default to Server Components
+- Add `'use client'` only for interactivity (forms, modals, filters)
+- API calls via `src/lib/api/client.ts` (axios + `withCredentials: true`)
+- Server data fetching: TanStack Query in client components or fetch in RSC
+- Validate forms with Zod + react-hook-form
+- Types live in `src/types/` — mirror API resource shapes
+
+```tsx
+// ✅ Client component for interactive filter
+'use client';
+export function FilterSidebar() { ... }
+
+// ✅ Server page wrapping client grid
+export default async function HomePage() { return <BrowsePage />; }
+```

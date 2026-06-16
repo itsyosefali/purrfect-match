@@ -1,0 +1,12 @@
+---
+description: Git and commit conventions
+alwaysApply: true
+---
+
+# Git Workflow
+
+- Conventional commits: `feat(frontend):`, `fix(backend):`, `chore:`
+- Never commit `.env`, `.env.local`, or credentials
+- Do not commit unless explicitly asked
+- Keep backend and frontend changes in logical separate commits when possible
+- Run `php artisan test` and `npm run build` before marking work complete

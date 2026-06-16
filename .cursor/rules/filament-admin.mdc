@@ -1,0 +1,15 @@
+---
+description: Filament admin panel patterns
+globs: backend/app/Filament/**
+alwaysApply: false
+---
+
+# Filament Admin
+
+- Filament 5 uses `Schema` not `Form`: `public static function form(Schema $schema): Schema`
+- Property types must match parent: `$navigationIcon` is `string|BackedEnum|null`
+- Reuse Eloquent relationships and model scopes — no duplicate query logic
+- Admin-only: `User::canAccessPanel()` checks `is_admin`
+- Resources: CatListing, User, CatTrait in `app/Filament/Resources/`
+
+Do not put API-specific JSON shaping in Filament resources.

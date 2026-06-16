@@ -1,0 +1,27 @@
+---
+description: UI design matching Figma mockup
+globs: frontend/**/*.tsx
+alwaysApply: false
+---
+
+# UI Design — Purrfect Match
+
+Match the Figma mockup at https://sport-linter-78546085.figma.site/
+
+## Tokens
+
+- Background: `#FDF8F3` (cream)
+- Text: `#1C1410` (dark brown)
+- Muted text: `#6B5E57`
+- Accent/success: warm amber for CTAs
+- Cards: white, rounded-xl, subtle shadow
+- Pills: rounded-full filter chips; active = filled dark
+
+## Layout
+
+- Top nav: logo, Browse, List a Cat, Messages, My Listings, Saved, bell, avatar
+- Browse: hero left, filter sidebar, cat grid (3 cols desktop)
+- Cat cards: photo, status badge, owner avatar+name, name, breed, fee, rating, location, age, trait pills
+- Empty states with helpful copy + CTA button
+
+Mobile: collapse filters into sheet; stack grid to 1 col.

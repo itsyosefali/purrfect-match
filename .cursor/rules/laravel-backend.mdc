@@ -1,0 +1,24 @@
+---
+description: Laravel backend conventions
+globs: backend/**/*.php
+alwaysApply: false
+---
+
+# Laravel Backend
+
+- Use Form Request classes for validation when logic grows; inline validation OK for simple endpoints
+- Return API Resources from controllers, not raw models
+- Business logic in models/scopes; keep controllers thin
+- Use Enums in `app/Enums/` for status, gender, categories
+- Authorize with Policies (`CatListingPolicy`, `ConversationPolicy`)
+- Feature tests for API endpoints in `tests/Feature/Api/`
+
+```php
+// ✅ GOOD — scoped query + resource
+return CatListingResource::collection(
+    CatListing::query()->with(['owner', 'photos', 'traits'])->paginate()
+);
+
+// ❌ BAD — raw array from controller
+return response()->json(CatListing::all());
+```

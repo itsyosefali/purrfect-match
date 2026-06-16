@@ -1,0 +1,21 @@
+# Dependencies
+backend/vendor/
+frontend/node_modules/
+frontend/.next/
+
+# Environment
+backend/.env
+frontend/.env.local
+
+# OS / IDE
+.DS_Store
+.idea/
+*.swp
+
+# Laravel
+backend/storage/*.key
+backend/public/storage
+backend/database/*.sqlite
+
+# Logs
+*.log

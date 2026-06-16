@@ -1,0 +1,31 @@
+---
+description: API contract between Laravel and Next.js
+alwaysApply: true
+---
+
+# API Contracts
+
+Base URL: `NEXT_PUBLIC_API_URL` (default `http://localhost:8000/api`)
+
+## Response shapes
+
+- Success list: `{ data: T[], meta: { current_page, last_page, total }, links }`
+- Success item: `{ data: T }` or resource wrapper from Laravel
+- Error: `{ message: string, errors?: Record<string, string[]> }`
+
+## Auth
+
+- `POST /register`, `POST /login` — sets session cookie
+- `GET /user` — current user (401 if guest)
+- `POST /logout` — clears session
+- All authenticated requests need `withCredentials: true` + CSRF cookie from `/sanctum/csrf-cookie`
+
+## Pagination
+
+`?page=1&per_page=12`
+
+## Filters (cats)
+
+`search`, `gender`, `breed`, `max_age_months`, `max_fee_cents`, `traits` (comma slugs), `sort` (newest|rating|fee-asc|fee-desc)
+
+Update both sides when adding or renaming fields.

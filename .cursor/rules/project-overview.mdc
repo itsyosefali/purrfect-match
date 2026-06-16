@@ -1,0 +1,16 @@
+---
+description: Purrfect Match monorepo overview and stack
+alwaysApply: true
+---
+
+# Purrfect Match
+
+Monorepo: `backend/` (Laravel 13 + Filament 5) and `frontend/` (Next.js 16).
+
+- Run backend commands from `backend/`, frontend from `frontend/`
+- API base: `http://localhost:8000/api`
+- Frontend: `http://localhost:3000`
+- Auth: Sanctum SPA cookies — never use Bearer tokens for browser auth
+- Admin lives in Filament at `/admin` — do not build admin UI in Next.js
+
+When changing API shape, update both backend controllers/resources AND frontend `src/lib/api/` + `src/types/`.
