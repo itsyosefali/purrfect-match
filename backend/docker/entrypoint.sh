@@ -13,7 +13,9 @@ until php artisan db:show >/dev/null 2>&1; do
 done
 
 php artisan migrate --force
-php artisan storage:link --force 2>/dev/null || true
+
+rm -rf public/storage
+php artisan storage:link --force
 
 if [ "$AUTO_SEED" = "true" ]; then
   if php artisan tinker --execute="exit(App\\Models\\User::count() === 0 ? 0 : 1);" 2>/dev/null; then
@@ -22,6 +24,8 @@ if [ "$AUTO_SEED" = "true" ]; then
     echo "Seed skipped — users already exist."
   fi
 fi
+
+php artisan db:seed --class=SyncSeedImagesSeeder --force
 
 php artisan config:cache
 php artisan route:cache
