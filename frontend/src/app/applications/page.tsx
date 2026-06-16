@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { fetchMyApplications, updateApplication } from "@/lib/api/applications";
 import { formatFee } from "@/lib/utils";
 
 export default function ApplicationsPage() {
   const { user, loading } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -33,16 +35,16 @@ export default function ApplicationsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Applications</h1>
+      <h1 className="text-2xl font-bold">{t("applications.title")}</h1>
       {isLoading ? (
-        <p className="text-[#6B5E57]">Loading…</p>
+        <p className="text-[#6B5E57]">{t("common.loading")}</p>
       ) : applications.length === 0 ? (
         <EmptyState
-          title="No applications yet"
-          description="When you apply to adopt a cat, your applications will appear here."
+          title={t("applications.emptyTitle")}
+          description={t("applications.emptyBody")}
           action={
             <Link href="/" className="rounded-full bg-[#1C1410] px-4 py-2 text-sm text-white">
-              Browse cats
+              {t("applications.browseCats")}
             </Link>
           }
         />
@@ -56,11 +58,17 @@ export default function ApplicationsPage() {
                     href={app.cat ? `/cats/${app.cat.slug}` : "#"}
                     className="font-semibold hover:underline"
                   >
-                    {app.cat?.name ?? "Cat"}
+                    {app.cat?.name ?? t("applications.catFallback")}
                   </Link>
-                  <p className="text-sm capitalize text-[#6B5E57]">Status: {app.status}</p>
+                  <p className="text-sm text-[#6B5E57]">
+                    {t("applications.status", { status: t(`status.${app.status}`) })}
+                  </p>
                   {app.cat ? (
-                    <p className="text-sm">{formatFee(app.cat.adoption_fee_cents)} adoption fee</p>
+                    <p className="text-sm">
+                      {t("applications.adoptionFee", {
+                        fee: formatFee(app.cat.adoption_fee_cents, t("cat.free")),
+                      })}
+                    </p>
                   ) : null}
                   <p className="mt-2 text-sm text-[#6B5E57]">{app.message}</p>
                 </div>
@@ -70,7 +78,7 @@ export default function ApplicationsPage() {
                     onClick={() => withdrawMutation.mutate(app.id)}
                     className="rounded-full bg-red-50 px-3 py-1 text-xs text-red-700"
                   >
-                    Withdraw
+                    {t("applications.withdraw")}
                   </button>
                 ) : null}
               </div>

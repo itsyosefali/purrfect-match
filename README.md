@@ -78,4 +78,17 @@ cats/
 - Reviews, reports, public owner profiles
 - Filament admin with moderation (reports) and stats dashboard
 
-See [docs/openapi.md](docs/openapi.md) for the API reference and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for production setup.
+See [docs/openapi.md](docs/openapi.md) for the API reference, [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for production setup, and [docs/DOKPLOY.md](docs/DOKPLOY.md) for Dokploy deployment.
+
+## Docker (production stack)
+
+```bash
+cp .env.production.example .env.production
+# Set APP_KEY: cd backend && php artisan key:generate --show
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+```
+
+- Frontend: http://localhost:3000
+- API: http://localhost:8000
+
+Local dev uses `docker compose up -d` for Postgres + Redis only.

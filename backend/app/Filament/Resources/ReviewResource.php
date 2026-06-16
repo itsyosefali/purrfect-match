@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ReviewResource\Pages;
 use App\Models\Review;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -36,8 +38,8 @@ class ReviewResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ViewAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { resetPassword } from "@/lib/api/profile";
 import { getApiErrorMessage } from "@/lib/api/client";
 
 function ResetForm() {
   const router = useRouter();
+  const { t } = useLocale();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const email = searchParams.get("email") ?? "";
@@ -32,9 +34,9 @@ function ResetForm() {
   if (!token || !email) {
     return (
       <div className="rounded-2xl bg-white p-6 ring-1 ring-[#E8DFD6]">
-        <p className="text-sm text-[#6B5E57]">Invalid or expired reset link.</p>
+        <p className="text-sm text-[#6B5E57]">{t("auth.invalidResetLink")}</p>
         <Link href="/forgot-password" className="mt-4 inline-block text-sm underline">
-          Request a new link
+          {t("auth.requestNewLink")}
         </Link>
       </div>
     );
@@ -49,7 +51,7 @@ function ResetForm() {
       className="space-y-4 rounded-2xl bg-white p-6 ring-1 ring-[#E8DFD6]"
     >
       <label className="block text-sm">
-        New password
+        {t("auth.newPassword")}
         <input
           type="password"
           required
@@ -59,7 +61,7 @@ function ResetForm() {
         />
       </label>
       <label className="block text-sm">
-        Confirm password
+        {t("auth.confirmPassword")}
         <input
           type="password"
           required
@@ -74,17 +76,19 @@ function ResetForm() {
         disabled={mutation.isPending}
         className="w-full rounded-full bg-[#1C1410] py-2.5 text-sm text-white disabled:opacity-50"
       >
-        Reset Password
+        {t("auth.resetPassword")}
       </button>
     </form>
   );
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useLocale();
+
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="text-2xl font-bold">Choose a New Password</h1>
-      <Suspense fallback={<p className="text-sm text-[#6B5E57]">Loading…</p>}>
+      <h1 className="text-2xl font-bold">{t("auth.newPasswordTitle")}</h1>
+      <Suspense fallback={<p className="text-sm text-[#6B5E57]">{t("common.loading")}</p>}>
         <ResetForm />
       </Suspense>
     </div>

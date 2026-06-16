@@ -2,28 +2,34 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, Cat, Heart, MessageCircle, PawPrint, Plus } from "lucide-react";
+import { Bell, Cat, PawPrint, Plus } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { fetchNotifications, fetchUnreadCounts, markAllNotificationsRead } from "@/lib/api/messages";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { href: "/", label: "Browse" },
-  { href: "/list", label: "List a Cat", auth: true },
-  { href: "/messages", label: "Messages", auth: true },
-  { href: "/my-listings", label: "My Listings", auth: true },
-  { href: "/applications", label: "Applications", auth: true },
-  { href: "/saved", label: "Saved", auth: true },
-];
 
 export function AppNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, loading } = useAuth();
+  const { t } = useLocale();
   const queryClient = useQueryClient();
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const navItems = useMemo(
+    () => [
+      { href: "/", label: t("nav.browse") },
+      { href: "/list", label: t("nav.listCat"), auth: true },
+      { href: "/messages", label: t("nav.messages"), auth: true },
+      { href: "/my-listings", label: t("nav.myListings"), auth: true },
+      { href: "/applications", label: t("nav.applications"), auth: true },
+      { href: "/saved", label: t("nav.saved"), auth: true },
+    ],
+    [t],
+  );
 
   const markReadMutation = useMutation({
     mutationFn: markAllNotificationsRead,
@@ -48,10 +54,10 @@ export function AppNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#E8DFD6] bg-[#FDF8F3]/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3">
+      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 md:gap-6">
         <Link href="/" className="flex items-center gap-2 font-semibold text-[#1C1410]">
           <PawPrint className="h-5 w-5" />
-          Purrfect Match
+          {t("app.name")}
         </Link>
 
         <nav className="hidden flex-1 items-center gap-1 md:flex">
@@ -71,7 +77,7 @@ export function AppNav() {
               >
                 {item.label}
                 {item.href === "/messages" && counts?.conversations ? (
-                  <span className="ml-1.5 rounded-full bg-amber-500 px-1.5 text-xs text-white">
+                  <span className="ms-1.5 rounded-full bg-amber-500 px-1.5 text-xs text-white">
                     {counts.conversations}
                   </span>
                 ) : null}
@@ -80,7 +86,8 @@ export function AppNav() {
           })}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ms-auto flex items-center gap-2">
+          <LanguageSwitcher className="hidden sm:block" />
           {user ? (
             <>
               <div className="relative">
@@ -88,35 +95,35 @@ export function AppNav() {
                   type="button"
                   onClick={() => setShowNotifications((v) => !v)}
                   className="rounded-full p-2 text-[#6B5E57] hover:bg-white"
-                  aria-label="Notifications"
+                  aria-label={t("nav.notifications")}
                 >
                   <Bell className="h-5 w-5" />
                   {counts?.unread_messages ? (
-                    <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-amber-500" />
+                    <span className="absolute end-1 top-1 h-2 w-2 rounded-full bg-amber-500" />
                   ) : null}
                 </button>
                 {showNotifications ? (
-                  <div className="absolute right-0 mt-2 w-80 rounded-xl border border-[#E8DFD6] bg-white p-3 shadow-lg">
+                  <div className="absolute end-0 mt-2 w-80 rounded-xl border border-[#E8DFD6] bg-white p-3 shadow-lg">
                     <div className="mb-2 flex items-center justify-between">
-                      <p className="text-sm font-medium">Notifications</p>
+                      <p className="text-sm font-medium">{t("nav.notifications")}</p>
                       {counts?.unread_messages ? (
                         <button
                           type="button"
                           onClick={() => markReadMutation.mutate()}
                           className="text-xs text-[#6B5E57] underline"
                         >
-                          Mark all read
+                          {t("nav.markAllRead")}
                         </button>
                       ) : null}
                     </div>
                     {notifications.length === 0 ? (
-                      <p className="text-sm text-[#6B5E57]">No new notifications</p>
+                      <p className="text-sm text-[#6B5E57]">{t("nav.noNotifications")}</p>
                     ) : (
                       notifications.map((n) => (
                         <button
                           key={n.id}
                           type="button"
-                          className="block w-full rounded-lg p-2 text-left hover:bg-[#FDF8F3]"
+                          className="block w-full rounded-lg p-2 text-start hover:bg-[#FDF8F3]"
                           onClick={() => {
                             setShowNotifications(false);
                             router.push(`/messages?conversation=${n.conversation_id}`);
@@ -147,26 +154,27 @@ export function AppNav() {
                 onClick={() => logout()}
                 className="hidden rounded-full px-3 py-1.5 text-sm text-[#6B5E57] hover:text-[#1C1410] md:block"
               >
-                Log out
+                {t("nav.logout")}
               </button>
             </>
           ) : loading ? null : (
             <>
               <Link href="/login" className="text-sm text-[#6B5E57] hover:text-[#1C1410]">
-                Log in
+                {t("nav.login")}
               </Link>
               <Link
                 href="/register"
                 className="rounded-full bg-[#1C1410] px-4 py-1.5 text-sm text-white"
               >
-                Sign up
+                {t("nav.signup")}
               </Link>
             </>
           )}
         </div>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto border-t border-[#E8DFD6] px-4 py-2 md:hidden">
+      <div className="flex items-center gap-2 overflow-x-auto border-t border-[#E8DFD6] px-4 py-2 md:hidden">
+        <LanguageSwitcher className="shrink-0 sm:hidden" />
         {navItems.map((item) => {
           if (item.auth && !user) return null;
           return (
@@ -181,7 +189,7 @@ export function AppNav() {
         })}
         {user ? (
           <Link href="/list" className="flex items-center gap-1 rounded-full bg-[#1C1410] px-3 py-1 text-xs text-white">
-            <Plus className="h-3 w-3" /> List
+            <Plus className="h-3 w-3" /> {t("nav.list")}
           </Link>
         ) : null}
       </div>

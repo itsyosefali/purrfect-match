@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import type { CatListing } from "@/types";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { startConversation } from "@/lib/api/messages";
 import { getApiErrorMessage } from "@/lib/api/client";
 
@@ -15,9 +16,15 @@ interface ContactModalProps {
 
 export function ContactModal({ cat, onClose }: ContactModalProps) {
   const router = useRouter();
-  const [message, setMessage] = useState(
-    `Hi ${cat.owner?.name.split(" ")[0]}! I am interested in adopting ${cat.name}. Could we chat more about the process?`,
+  const { t } = useLocale();
+  const ownerFirstName = cat.owner?.name.split(" ")[0] ?? "";
+
+  const defaultMessage = useMemo(
+    () => t("contact.defaultMessage", { owner: ownerFirstName, cat: cat.name }),
+    [t, ownerFirstName, cat.name],
   );
+
+  const [message, setMessage] = useState(defaultMessage);
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
@@ -36,10 +43,12 @@ export function ContactModal({ cat, onClose }: ContactModalProps) {
           <div>
             <p className="font-semibold">{cat.owner?.name}</p>
             <p className="text-sm text-[#6B5E57]">
-              Replies within {cat.owner?.avg_response_minutes} mins
+              {t("contact.repliesWithin", {
+                minutes: cat.owner?.avg_response_minutes ?? 60,
+              })}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-[#FDF8F3]">
+          <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-[#FDF8F3]" aria-label={t("common.close")}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -52,7 +61,7 @@ export function ContactModal({ cat, onClose }: ContactModalProps) {
         </div>
 
         <label className="mb-4 block text-sm font-medium">
-          Your Message
+          {t("contact.yourMessage")}
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -69,7 +78,7 @@ export function ContactModal({ cat, onClose }: ContactModalProps) {
           onClick={() => mutation.mutate()}
           className="w-full rounded-full bg-[#1C1410] py-3 text-sm font-medium text-white disabled:opacity-50"
         >
-          {mutation.isPending ? "Sending…" : "Send Message"}
+          {mutation.isPending ? t("messages.sending") : t("contact.sendMessage")}
         </button>
       </div>
     </div>

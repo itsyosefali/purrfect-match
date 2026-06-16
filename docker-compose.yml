@@ -1,3 +1,10 @@
+# Local development — Postgres + Redis only.
+# Run Laravel and Next.js on the host for hot reload.
+#
+#   docker compose up -d
+#   cd backend && php artisan serve
+#   cd frontend && npm run dev
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -9,6 +16,11 @@ services:
       POSTGRES_PASSWORD: purrfect
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U purrfect -d purrfect_match"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -16,6 +28,11 @@ services:
       - "6380:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_data:

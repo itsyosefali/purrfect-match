@@ -6,6 +6,7 @@ use App\Enums\ReportStatus;
 use App\Filament\Resources\ReportResource\Pages;
 use App\Models\Report;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -52,7 +53,7 @@ class ReportResource extends Resource
                     ->options(collect(ReportStatus::cases())->mapWithKeys(fn ($s) => [$s->value => ucfirst($s->value)])),
             ])
             ->recordActions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ]);
     }
 

@@ -5,11 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatFee(cents: number): string {
-  if (cents === 0) return "Free";
+export function formatFee(cents: number, freeLabel = "Free"): string {
+  if (cents === 0) return freeLabel;
   return `$${(cents / 100).toFixed(0)}`;
-}
-
-export function genderLabel(gender: string): string {
-  return gender === "male" ? "Male" : "Female";
 }

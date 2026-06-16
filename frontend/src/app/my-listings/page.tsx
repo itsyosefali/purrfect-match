@@ -7,10 +7,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { CatCard } from "@/components/cats/CatCard";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { deleteListing, fetchMyListings, updateListingStatus } from "@/lib/api/cats";
 
 export default function MyListingsPage() {
   const { user, loading } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -40,23 +42,23 @@ export default function MyListingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Listings</h1>
+        <h1 className="text-2xl font-bold">{t("listings.myTitle")}</h1>
         <Link
           href="/list"
           className="flex items-center gap-2 rounded-full bg-[#1C1410] px-4 py-2 text-sm text-white"
         >
-          <Plus className="h-4 w-4" /> Add Listing
+          <Plus className="h-4 w-4" /> {t("listings.addListing")}
         </Link>
       </div>
 
       {isLoading ? (
-        <p className="text-[#6B5E57]">Loading…</p>
+        <p className="text-[#6B5E57]">{t("common.loading")}</p>
       ) : listings.length === 0 ? (
         <div className="rounded-2xl bg-white p-12 text-center ring-1 ring-[#E8DFD6]">
-          <p className="mb-2 font-medium">No listings yet</p>
-          <p className="mb-4 text-sm text-[#6B5E57]">Start by listing a cat for adoption.</p>
+          <p className="mb-2 font-medium">{t("listings.emptyTitle")}</p>
+          <p className="mb-4 text-sm text-[#6B5E57]">{t("listings.emptyBody")}</p>
           <Link href="/list" className="rounded-full bg-[#1C1410] px-4 py-2 text-sm text-white">
-            List a Cat
+            {t("listings.listCat")}
           </Link>
         </div>
       ) : (
@@ -69,13 +71,13 @@ export default function MyListingsPage() {
                   href={`/my-listings/${cat.id}/edit`}
                   className="rounded-full bg-white px-3 py-1 text-xs ring-1 ring-[#E8DFD6]"
                 >
-                  Edit
+                  {t("listings.edit")}
                 </Link>
                 <Link
                   href={`/my-listings/${cat.id}/applications`}
                   className="rounded-full bg-white px-3 py-1 text-xs ring-1 ring-[#E8DFD6]"
                 >
-                  Applications
+                  {t("listings.applications")}
                 </Link>
                 <select
                   value={cat.status}
@@ -84,16 +86,16 @@ export default function MyListingsPage() {
                   }
                   className="rounded-full border border-[#E8DFD6] bg-white px-2 py-1 text-xs"
                 >
-                  <option value="available">Available</option>
-                  <option value="pending">Pending</option>
-                  <option value="adopted">Adopted</option>
+                  <option value="available">{t("status.available")}</option>
+                  <option value="pending">{t("status.pending")}</option>
+                  <option value="adopted">{t("status.adopted")}</option>
                 </select>
                 <button
                   type="button"
                   onClick={() => deleteMutation.mutate(cat.id)}
                   className="rounded-full bg-red-50 px-3 py-1 text-xs text-red-700"
                 >
-                  Delete
+                  {t("listings.delete")}
                 </button>
               </div>
             </div>

@@ -10,6 +10,7 @@ import { FilterSidebar, QuickFilterChips } from "@/components/cats/FilterSidebar
 import { MobileFilterDrawer } from "@/components/cats/MobileFilterDrawer";
 import { ContactModal } from "@/components/messages/ContactModal";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { fetchCats, fetchStats } from "@/lib/api/cats";
 import { saveCat, unsaveCat } from "@/lib/api/saved";
 import { fetchTraits } from "@/lib/api/traits";
@@ -19,6 +20,7 @@ export function BrowsePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const { t } = useLocale();
   const queryClient = useQueryClient();
 
   const filters: CatFilters = useMemo(
@@ -91,13 +93,13 @@ export function BrowsePage() {
         <div className="space-y-4">
           {stats ? (
             <p className="text-sm text-[#6B5E57]">
-              {stats.cats_available} cats available near you
+              {t("browse.catsAvailable", { count: stats.cats_available })}
             </p>
           ) : null}
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-            Find Your
+            {t("browse.heroLine1")}
             <br />
-            Perfect Match.
+            {t("browse.heroLine2")}
           </h1>
           <form
             onSubmit={(e) => {
@@ -106,12 +108,12 @@ export function BrowsePage() {
             }}
             className="relative max-w-md"
           >
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B5E57]" />
+            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B5E57]" />
             <input
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by name, breed, or city…"
-              className="w-full rounded-full border border-[#E8DFD6] bg-white py-2.5 pl-10 pr-4 text-sm"
+              placeholder={t("browse.searchPlaceholder")}
+              className="w-full rounded-full border border-[#E8DFD6] bg-white py-2.5 ps-10 pe-4 text-sm"
             />
           </form>
           <QuickFilterChips filters={filters} onChange={updateFilters} />
@@ -143,7 +145,7 @@ export function BrowsePage() {
                 onChange={updateFilters}
               />
               <p className="text-sm text-[#6B5E57]">
-                Showing {catsPage?.meta.total ?? 0} cats
+                {t("browse.showingCats", { count: catsPage?.meta.total ?? 0 })}
               </p>
             </div>
             <select
@@ -151,11 +153,11 @@ export function BrowsePage() {
               onChange={(e) => updateFilters({ ...filters, sort: e.target.value, page: 1 })}
               className="rounded-full border border-[#E8DFD6] bg-white px-3 py-1.5 text-sm"
             >
-              <option value="newest">Newest first</option>
-              <option value="featured">Featured</option>
-              <option value="rating">Top Rated</option>
-              <option value="fee-asc">Fee: Low to High</option>
-              <option value="fee-desc">Fee: High to Low</option>
+              <option value="newest">{t("browse.sortNewest")}</option>
+              <option value="featured">{t("browse.sortFeatured")}</option>
+              <option value="rating">{t("browse.sortRating")}</option>
+              <option value="fee-asc">{t("browse.sortFeeAsc")}</option>
+              <option value="fee-desc">{t("browse.sortFeeDesc")}</option>
             </select>
           </div>
 
@@ -167,16 +169,14 @@ export function BrowsePage() {
             </div>
           ) : catsPage?.data.length === 0 ? (
             <div className="rounded-2xl bg-white p-12 text-center ring-1 ring-[#E8DFD6]">
-              <p className="mb-2 font-medium">No cats match your filters</p>
-              <p className="mb-4 text-sm text-[#6B5E57]">
-                Try adjusting your search or clearing filters.
-              </p>
+              <p className="mb-2 font-medium">{t("browse.noResultsTitle")}</p>
+              <p className="mb-4 text-sm text-[#6B5E57]">{t("browse.noResultsBody")}</p>
               <button
                 type="button"
                 onClick={() => updateFilters({ sort: "newest", page: 1 })}
                 className="rounded-full bg-[#1C1410] px-4 py-2 text-sm text-white"
               >
-                Clear filters
+                {t("browse.clearFilters")}
               </button>
             </div>
           ) : (
@@ -220,10 +220,10 @@ export function BrowsePage() {
       {stats ? (
         <div className="grid grid-cols-2 gap-4 rounded-2xl bg-white p-6 ring-1 ring-[#E8DFD6] md:grid-cols-4">
           {[
-            { label: "Verified Owners", value: `${stats.verified_owners.toLocaleString()}+` },
-            { label: "Successful Adoptions", value: `${stats.successful_adoptions.toLocaleString()}+` },
-            { label: "Identity Verified", value: `${stats.identity_verified_percent}%` },
-            { label: "Cities Covered", value: `${stats.cities_covered}+` },
+            { label: t("browse.verifiedOwners"), value: `${stats.verified_owners.toLocaleString()}+` },
+            { label: t("browse.successfulAdoptions"), value: `${stats.successful_adoptions.toLocaleString()}+` },
+            { label: t("browse.identityVerified"), value: `${stats.identity_verified_percent}%` },
+            { label: t("browse.citiesCovered"), value: `${stats.cities_covered}+` },
           ].map((item) => (
             <div key={item.label} className="text-center">
               <p className="text-2xl font-bold">{item.value}</p>

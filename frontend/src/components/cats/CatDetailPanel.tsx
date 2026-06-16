@@ -8,8 +8,9 @@ import { PhotoGallery } from "@/components/cats/PhotoGallery";
 import { ReportModal } from "@/components/cats/ReportModal";
 import { ReviewsSection } from "@/components/cats/ReviewsSection";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import type { CatListing } from "@/types";
-import { cn, formatFee, genderLabel } from "@/lib/utils";
+import { cn, formatFee } from "@/lib/utils";
 
 interface CatDetailPanelProps {
   cat: CatListing;
@@ -19,6 +20,7 @@ interface CatDetailPanelProps {
 
 export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps) {
   const { user } = useAuth();
+  const { t } = useLocale();
   const [showApply, setShowApply] = useState(false);
   const [showReport, setShowReport] = useState(false);
 
@@ -37,8 +39,8 @@ export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps)
         <button type="button" className="flex-1" onClick={onClose} aria-label="Close" />
         <div className="h-full w-full max-w-lg overflow-y-auto bg-white shadow-2xl">
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#E8DFD6] bg-white px-4 py-3">
-            <span className="font-medium capitalize">{cat.status}</span>
-            <button type="button" onClick={onClose} className="rounded-full p-2 hover:bg-[#FDF8F3]">
+            <span className="font-medium capitalize">{t(`status.${cat.status}`)}</span>
+            <button type="button" onClick={onClose} className="rounded-full p-2 hover:bg-[#FDF8F3]" aria-label={t("common.close")}>
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -51,12 +53,12 @@ export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps)
                 <h2 className="text-2xl font-bold">{cat.name}</h2>
                 {cat.is_featured ? (
                   <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
-                    Featured
+                    {t("cat.featured")}
                   </span>
                 ) : null}
               </div>
               <p className="text-[#6B5E57]">
-                {cat.breed} · {cat.age_label} · {genderLabel(cat.gender)}
+                {cat.breed} · {cat.age_label} · {cat.gender === "male" ? t("filters.male") : t("filters.female")}
               </p>
               <div className="mt-1 flex items-center gap-1 text-sm">
                 <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -127,8 +129,8 @@ export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps)
             <ReviewsSection slug={cat.slug} canReview={canReview} />
 
             <div className="rounded-xl bg-[#FDF8F3] p-4">
-              <p className="text-2xl font-bold">{formatFee(cat.adoption_fee_cents)}</p>
-              <p className="text-sm text-[#6B5E57]">adoption fee</p>
+              <p className="text-2xl font-bold">{formatFee(cat.adoption_fee_cents, t("cat.free"))}</p>
+              <p className="text-sm text-[#6B5E57]">{t("cat.adoptionFee")}</p>
               <div className="mt-4 flex flex-col gap-2">
                 {cat.status === "available" && user && user.id !== cat.owner?.id ? (
                   <button
@@ -136,7 +138,7 @@ export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps)
                     onClick={() => setShowApply(true)}
                     className="w-full rounded-full bg-[#1C1410] py-3 text-sm font-medium text-white"
                   >
-                    Apply to Adopt
+                    {t("detail.applyToAdopt")}
                   </button>
                 ) : null}
                 <button
@@ -149,7 +151,7 @@ export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps)
                       : "bg-[#1C1410] text-white",
                   )}
                 >
-                  Contact Owner
+                  {t("detail.messageOwner")}
                 </button>
                 {user && user.id !== cat.owner?.id ? (
                   <button
@@ -157,7 +159,7 @@ export function CatDetailPanel({ cat, onClose, onContact }: CatDetailPanelProps)
                     onClick={() => setShowReport(true)}
                     className="flex items-center justify-center gap-1 text-xs text-[#6B5E57] hover:text-red-600"
                   >
-                    <Flag className="h-3 w-3" /> Report listing
+                    <Flag className="h-3 w-3" /> {t("detail.reportListing")}
                   </button>
                 ) : null}
               </div>

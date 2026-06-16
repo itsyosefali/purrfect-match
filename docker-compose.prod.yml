@@ -1,0 +1,137 @@
+# Production stack for Dokploy / Docker deployment.
+#
+# Required env file: copy .env.production.example → .env.production
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+
+x-backend-env: &backend-env
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_URL: ${APP_URL:-http://localhost:8000}
+  FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+  SANCTUM_STATEFUL_DOMAINS: ${SANCTUM_STATEFUL_DOMAINS:-localhost:3000}
+  SESSION_DOMAIN: ${SESSION_DOMAIN:-}
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+  DB_CONNECTION: pgsql
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_DATABASE: ${POSTGRES_DB:-purrfect_match}
+  DB_USERNAME: ${POSTGRES_USER:-purrfect}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-purrfect}
+  REDIS_CLIENT: predis
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  CACHE_STORE: redis
+  QUEUE_CONNECTION: redis
+  SESSION_DRIVER: redis
+  BROADCAST_CONNECTION: reverb
+  FILESYSTEM_DISK: public
+  MAIL_MAILER: ${MAIL_MAILER:-log}
+  REVERB_APP_ID: ${REVERB_APP_ID:-purrfect}
+  REVERB_APP_KEY: ${REVERB_APP_KEY:-purrfect-key}
+  REVERB_APP_SECRET: ${REVERB_APP_SECRET:-purrfect-secret}
+  REVERB_HOST: ${REVERB_HOST:-reverb}
+  REVERB_PORT: ${REVERB_PORT:-8080}
+  REVERB_SCHEME: ${REVERB_SCHEME:-http}
+  AUTO_SEED: ${AUTO_SEED:-false}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-purrfect_match}
+      POSTGRES_USER: ${POSTGRES_USER:-purrfect}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-purrfect}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-purrfect} -d ${POSTGRES_DB:-purrfect_match}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *backend-env
+      APP_KEY: ${APP_KEY:?Set APP_KEY in .env.production}
+    volumes:
+      - backend_storage:/var/www/html/storage/app/public
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    entrypoint: ["php"]
+    command: ["artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--max-time=3600"]
+    environment:
+      <<: *backend-env
+      APP_KEY: ${APP_KEY:?Set APP_KEY in .env.production}
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  reverb:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    entrypoint: ["php"]
+    command: ["artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    environment:
+      <<: *backend-env
+      APP_KEY: ${APP_KEY:?Set APP_KEY in .env.production}
+    ports:
+      - "${REVERB_PORT:-8080}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        NEXT_PUBLIC_REVERB_APP_KEY: ${REVERB_APP_KEY:-purrfect-key}
+        NEXT_PUBLIC_REVERB_HOST: ${NEXT_PUBLIC_REVERB_HOST:-localhost}
+        NEXT_PUBLIC_REVERB_PORT: ${NEXT_PUBLIC_REVERB_PORT:-8080}
+        NEXT_PUBLIC_REVERB_SCHEME: ${NEXT_PUBLIC_REVERB_SCHEME:-http}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_storage:

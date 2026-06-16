@@ -6,6 +6,8 @@ use App\Enums\TraitCategory;
 use App\Filament\Resources\CatTraitResource\Pages;
 use App\Models\CatTrait;
 use BackedEnum;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
@@ -46,8 +48,8 @@ class CatTraitResource extends Resource
                 Tables\Columns\TextColumn::make('category')->badge(),
             ])
             ->recordActions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ]);
     }
 

@@ -22,6 +22,17 @@ const authClient = axios.create({
   },
 });
 
+authClient.interceptors.request.use(async (config) => {
+  if (!api.defaults.headers.common["X-XSRF-TOKEN"]) {
+    await ensureCsrfCookie();
+  }
+  const xsrf = api.defaults.headers.common["X-XSRF-TOKEN"];
+  if (xsrf) {
+    config.headers.set("X-XSRF-TOKEN", xsrf as string);
+  }
+  return config;
+});
+
 export function getEcho(): Echo<"reverb"> | null {
   if (typeof window === "undefined") return null;
 
@@ -48,17 +59,10 @@ export function getEcho(): Echo<"reverb"> | null {
       authorize: async (socketId, callback) => {
         try {
           await ensureCsrfCookie();
-          const xsrf = api.defaults.headers.common["X-XSRF-TOKEN"];
-          const { data } = await authClient.post(
-            `${API_URL}/broadcasting/auth`,
-            {
-              socket_id: socketId,
-              channel_name: channel.name,
-            },
-            {
-              headers: xsrf ? { "X-XSRF-TOKEN": xsrf as string } : {},
-            },
-          );
+          const { data } = await authClient.post(`${API_URL}/broadcasting/auth`, {
+            socket_id: socketId,
+            channel_name: channel.name,
+          });
           callback(null, data);
         } catch (error) {
           callback(error instanceof Error ? error : new Error(String(error)), null);

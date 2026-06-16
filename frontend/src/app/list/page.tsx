@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { createCatListing } from "@/lib/api/cats";
 import { fetchTraits } from "@/lib/api/traits";
 import { getApiErrorMessage } from "@/lib/api/client";
@@ -37,6 +38,7 @@ const initial: FormState = {
 
 export default function ListCatPage() {
   const { user, loading } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>(initial);
@@ -76,10 +78,8 @@ export default function ListCatPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">List Your Cat for Adoption</h1>
-        <p className="text-sm text-[#6B5E57]">
-          Connect with loving families. It takes about 5 minutes.
-        </p>
+        <h1 className="text-2xl font-bold">{t("listings.listTitle")}</h1>
+        <p className="text-sm text-[#6B5E57]">{t("listings.listSubtitle")}</p>
       </div>
 
       <div className="flex gap-2">
@@ -95,7 +95,7 @@ export default function ListCatPage() {
         {step === 1 ? (
           <div className="space-y-4">
             <label className="block text-sm">
-              Upload photos (up to 6)
+              {t("listings.uploadPhotos")}
               <input
                 type="file"
                 accept="image/*"
@@ -107,10 +107,10 @@ export default function ListCatPage() {
               />
             </label>
             {[
-              ["name", "Cat's name", "e.g. Luna"],
-              ["breed", "Breed", "e.g. Brown Tabby"],
-              ["age_months", "Age (months)", "e.g. 24"],
-              ["location", "Your location", "e.g. Brooklyn, NY"],
+              ["name", t("listings.catName"), t("listings.catNamePlaceholder")],
+              ["breed", t("listings.breed"), t("listings.breedPlaceholder")],
+              ["age_months", t("listings.ageMonths"), t("listings.agePlaceholder")],
+              ["location", t("listings.yourLocation"), t("listings.locationPlaceholder")],
             ].map(([key, label, placeholder]) => (
               <label key={key} className="block text-sm">
                 {label}
@@ -124,18 +124,18 @@ export default function ListCatPage() {
               </label>
             ))}
             <div>
-              <p className="mb-2 text-sm">Gender</p>
+              <p className="mb-2 text-sm">{t("listings.gender")}</p>
               <div className="flex gap-2">
                 {(["female", "male"] as const).map((g) => (
                   <button
                     key={g}
                     type="button"
                     onClick={() => setForm({ ...form, gender: g })}
-                    className={`rounded-full px-4 py-1.5 text-sm capitalize ${
+                    className={`rounded-full px-4 py-1.5 text-sm ${
                       form.gender === g ? "bg-[#1C1410] text-white" : "bg-[#F3EBE3]"
                     }`}
                   >
-                    {g}
+                    {g === "male" ? t("filters.male") : t("filters.female")}
                   </button>
                 ))}
               </div>
@@ -146,28 +146,28 @@ export default function ListCatPage() {
         {step === 2 ? (
           <div className="space-y-4">
             <label className="block text-sm">
-              Reason for rehoming
+              {t("listings.rehomeReason")}
               <input
                 required
                 value={form.rehome_reason}
-                placeholder="e.g. Relocating abroad"
+                placeholder={t("listings.rehomePlaceholder")}
                 onChange={(e) => setForm({ ...form, rehome_reason: e.target.value })}
                 className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
               />
             </label>
             <label className="block text-sm">
-              About your cat
+              {t("listings.aboutCat")}
               <textarea
                 required
                 rows={4}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Describe their personality, habits, and ideal home…"
+                placeholder={t("listings.aboutPlaceholder")}
                 className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
               />
             </label>
             <div>
-              <p className="mb-2 text-sm">Personality & health traits</p>
+              <p className="mb-2 text-sm">{t("listings.traits")}</p>
               <div className="flex flex-wrap gap-2">
                 {traits.map((trait) => (
                   <button
@@ -191,7 +191,7 @@ export default function ListCatPage() {
               </div>
             </div>
             <label className="block text-sm">
-              Adoption fee (USD, 0 for free)
+              {t("listings.adoptionFeeUsd")}
               <input
                 type="number"
                 min={0}
@@ -205,19 +205,17 @@ export default function ListCatPage() {
 
         {step === 3 ? (
           <div className="space-y-4">
-            <h2 className="font-semibold">Listing Preview</h2>
+            <h2 className="font-semibold">{t("listings.previewTitle")}</h2>
             <div className="rounded-xl bg-[#FDF8F3] p-4 text-sm">
               <p className="font-medium">{form.name || "—"}</p>
               <p className="text-[#6B5E57]">
                 {form.breed} · {form.location}
               </p>
-              <p className="mt-2">{form.description || "No description yet."}</p>
+              <p className="mt-2">{form.description || t("listings.noDescription")}</p>
             </div>
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-              <p className="font-medium">Safety reminder</p>
-              <p className="text-[#6B5E57]">
-                Never share financial info. Meet adopters in public first.
-              </p>
+              <p className="font-medium">{t("listings.safetyTitle")}</p>
+              <p className="text-[#6B5E57]">{t("listings.safetyBody")}</p>
             </div>
           </div>
         ) : null}
@@ -231,11 +229,11 @@ export default function ListCatPage() {
               onClick={() => setStep((s) => s - 1)}
               className="rounded-full px-4 py-2 text-sm ring-1 ring-[#E8DFD6]"
             >
-              Back
+              {t("listings.back")}
             </button>
           ) : (
             <Link href="/" className="text-sm text-[#6B5E57] underline">
-              Cancel
+              {t("common.cancel")}
             </Link>
           )}
           {step < 3 ? (
@@ -244,7 +242,7 @@ export default function ListCatPage() {
               onClick={() => setStep((s) => s + 1)}
               className="rounded-full bg-[#1C1410] px-6 py-2 text-sm text-white"
             >
-              Next
+              {t("listings.next")}
             </button>
           ) : (
             <button
@@ -253,7 +251,7 @@ export default function ListCatPage() {
               onClick={() => mutation.mutate()}
               className="rounded-full bg-[#1C1410] px-6 py-2 text-sm text-white disabled:opacity-50"
             >
-              {mutation.isPending ? "Submitting…" : "Submit Listing"}
+              {mutation.isPending ? t("listings.submitting") : t("listings.submitListing")}
             </button>
           )}
         </div>

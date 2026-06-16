@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { getApiErrorMessage } from "@/lib/api/client";
 
 export default function RegisterPage() {
-  const { register, user } = useAuth();
+  const { register, user, loading } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const [form, setForm] = useState({
     name: "",
@@ -17,21 +19,22 @@ export default function RegisterPage() {
     city: "",
   });
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  if (user) {
-    router.replace("/");
-    return null;
-  }
+  useEffect(() => {
+    if (!loading && user) router.replace("/");
+  }, [user, loading, router]);
+
+  if (loading || user) return null;
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="mb-2 text-2xl font-bold">Join Purrfect Match</h1>
-      <p className="mb-6 text-sm text-[#6B5E57]">Create an account to adopt or rehome cats.</p>
+      <h1 className="mb-2 text-2xl font-bold">{t("auth.joinTitle")}</h1>
+      <p className="mb-6 text-sm text-[#6B5E57]">{t("auth.joinSubtitle")}</p>
       <form
         onSubmit={async (e) => {
           e.preventDefault();
-          setLoading(true);
+          setSubmitting(true);
           setError(null);
           try {
             await register(form);
@@ -39,25 +42,42 @@ export default function RegisterPage() {
           } catch (err) {
             setError(getApiErrorMessage(err));
           } finally {
-            setLoading(false);
+            setSubmitting(false);
           }
         }}
         className="space-y-4 rounded-2xl bg-white p-6 ring-1 ring-[#E8DFD6]"
       >
-        {(["name", "email", "city"] as const).map((field) => (
-          <label key={field} className="block text-sm capitalize">
-            {field}
-            <input
-              type={field === "email" ? "email" : "text"}
-              required={field !== "city"}
-              value={form[field]}
-              onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-              className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
-            />
-          </label>
-        ))}
         <label className="block text-sm">
-          Password
+          {t("auth.name")}
+          <input
+            type="text"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
+          />
+        </label>
+        <label className="block text-sm">
+          {t("auth.email")}
+          <input
+            type="email"
+            required
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
+          />
+        </label>
+        <label className="block text-sm">
+          {t("auth.city")}
+          <input
+            type="text"
+            value={form.city}
+            onChange={(e) => setForm({ ...form, city: e.target.value })}
+            className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
+          />
+        </label>
+        <label className="block text-sm">
+          {t("auth.password")}
           <input
             type="password"
             required
@@ -67,7 +87,7 @@ export default function RegisterPage() {
           />
         </label>
         <label className="block text-sm">
-          Confirm password
+          {t("auth.confirmPassword")}
           <input
             type="password"
             required
@@ -79,16 +99,16 @@ export default function RegisterPage() {
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
         <button
           type="submit"
-          disabled={loading}
+          disabled={submitting}
           className="w-full rounded-full bg-[#1C1410] py-3 text-sm font-medium text-white disabled:opacity-50"
         >
-          {loading ? "Creating account…" : "Sign up"}
+          {submitting ? t("auth.creatingAccount") : t("auth.signup")}
         </button>
       </form>
       <p className="mt-4 text-center text-sm text-[#6B5E57]">
-        Already have an account?{" "}
+        {t("auth.alreadyHaveAccount")}{" "}
         <Link href="/login" className="font-medium text-[#1C1410] underline">
-          Log in
+          {t("auth.login")}
         </Link>
       </p>
     </div>

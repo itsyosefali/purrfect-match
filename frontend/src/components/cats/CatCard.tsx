@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Heart, MapPin, MessageCircle, Star } from "lucide-react";
 import type { CatListing } from "@/types";
-import { cn, formatFee, genderLabel } from "@/lib/utils";
+import { useLocale } from "@/components/providers/LocaleProvider";
+import { cn, formatFee } from "@/lib/utils";
 
 interface CatCardProps {
   cat: CatListing;
@@ -20,6 +21,8 @@ export function CatCard({
   onMessage,
   showMessage = true,
 }: CatCardProps) {
+  const { t } = useLocale();
+
   const statusColors = {
     available: "bg-emerald-100 text-emerald-800",
     pending: "bg-amber-100 text-amber-800",
@@ -28,8 +31,12 @@ export function CatCard({
 
   return (
     <article className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#E8DFD6] transition hover:shadow-md">
-      <button type="button" onClick={() => onSelect?.(cat)} className="relative block w-full text-left">
-        <div className="relative aspect-[6/7] overflow-hidden bg-[#F3EBE3]">
+      <div className="relative aspect-[6/7] overflow-hidden bg-[#F3EBE3]">
+        <button
+          type="button"
+          onClick={() => onSelect?.(cat)}
+          className="absolute inset-0 z-0 block h-full w-full text-start"
+        >
           {cat.primary_photo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -38,41 +45,46 @@ export function CatCard({
               className="h-full w-full object-cover transition group-hover:scale-[1.02]"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-[#6B5E57]">No photo</div>
+            <div className="flex h-full items-center justify-center text-[#6B5E57]">
+              {t("cat.noPhoto")}
+            </div>
           )}
-          <span
-            className={cn(
-              "absolute left-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
-              statusColors[cat.status],
-            )}
-          >
-            {cat.status}
+        </button>
+
+        <span
+          className={cn(
+            "pointer-events-none absolute start-3 top-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+            statusColors[cat.status],
+          )}
+        >
+          {t(`status.${cat.status}`)}
+        </span>
+
+        {cat.is_featured ? (
+          <span className="pointer-events-none absolute start-3 top-10 z-10 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-medium text-[#1C1410]">
+            {t("cat.featured")}
           </span>
-          {cat.is_featured ? (
-            <span className="absolute left-3 top-10 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-medium text-[#1C1410]">
-              Featured
-            </span>
-          ) : null}
-          {onSave ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSave(cat);
-              }}
-              className="absolute right-3 top-3 rounded-full bg-white/90 p-2 shadow"
-              aria-label="Save cat"
-            >
-              <Heart
-                className={cn(
-                  "h-4 w-4",
-                  cat.is_saved ? "fill-red-500 text-red-500" : "text-[#6B5E57]",
-                )}
-              />
-            </button>
-          ) : null}
-        </div>
-      </button>
+        ) : null}
+
+        {onSave ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSave(cat);
+            }}
+            className="absolute end-3 top-3 z-20 rounded-full bg-white/90 p-2 shadow"
+            aria-label={t("cat.saveCat")}
+          >
+            <Heart
+              className={cn(
+                "h-4 w-4",
+                cat.is_saved ? "fill-red-500 text-red-500" : "text-[#6B5E57]",
+              )}
+            />
+          </button>
+        ) : null}
+      </div>
 
       <div className="space-y-3 p-4">
         {cat.owner ? (
@@ -94,8 +106,8 @@ export function CatCard({
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xl font-bold">{formatFee(cat.adoption_fee_cents)}</p>
-            <p className="text-xs text-[#6B5E57]">adoption fee</p>
+            <p className="text-xl font-bold">{formatFee(cat.adoption_fee_cents, t("cat.free"))}</p>
+            <p className="text-xs text-[#6B5E57]">{t("cat.adoptionFee")}</p>
           </div>
           <div className="flex items-center gap-1 text-sm">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -109,7 +121,7 @@ export function CatCard({
           {cat.location}
         </div>
         <p className="text-sm text-[#6B5E57]">
-          {cat.age_label} · {genderLabel(cat.gender)}
+          {cat.age_label} · {cat.gender === "male" ? t("filters.male") : t("filters.female")}
         </p>
 
         {cat.traits?.length ? (
@@ -126,7 +138,7 @@ export function CatCard({
         ) : null}
 
         <p className="text-xs text-[#6B5E57]">
-          Posted {cat.posted_ago}
+          {t("cat.posted", { time: cat.posted_ago })}
           {cat.rehome_reason ? ` · ${cat.rehome_reason}` : ""}
         </p>
 
@@ -137,7 +149,7 @@ export function CatCard({
             className="flex w-full items-center justify-center gap-2 rounded-full border border-[#E8DFD6] py-2 text-sm font-medium hover:bg-[#FDF8F3]"
           >
             <MessageCircle className="h-4 w-4" />
-            Message {cat.owner?.name.split(" ")[0]}
+            {t("cat.messageOwner", { name: cat.owner?.name.split(" ")[0] ?? "" })}
           </button>
         ) : null}
       </div>

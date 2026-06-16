@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\User;
 use Database\Seeders\Concerns\DownloadsSeedImages;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -17,7 +16,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Admin User',
                 'email' => 'admin@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'is_admin' => true,
                 'city' => 'San Francisco, CA',
                 'identity_verified_at' => now(),
@@ -28,7 +27,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Priya Sharma',
                 'email' => 'priya@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'city' => 'Seattle, WA',
                 'identity_verified_at' => now(),
                 'rating' => 5.0,
@@ -40,7 +39,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Marcus Lee',
                 'email' => 'marcus@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'city' => 'Atlanta, GA',
                 'identity_verified_at' => now(),
                 'rating' => 4.9,
@@ -52,7 +51,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Sarah Mitchell',
                 'email' => 'sarah@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'city' => 'Brooklyn, NY',
                 'identity_verified_at' => now(),
                 'rating' => 4.9,
@@ -64,7 +63,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Elena Voss',
                 'email' => 'elena@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'city' => 'Miami, FL',
                 'identity_verified_at' => now(),
                 'rating' => 4.9,
@@ -76,7 +75,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Tom',
                 'email' => 'tom@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'city' => 'Chicago, IL',
                 'identity_verified_at' => now(),
                 'rating' => 4.7,
@@ -88,7 +87,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Alex Rivera',
                 'email' => 'alex@purrfectmatch.test',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'city' => 'Los Angeles, CA',
                 'identity_verified_at' => now(),
                 'rating' => 4.8,

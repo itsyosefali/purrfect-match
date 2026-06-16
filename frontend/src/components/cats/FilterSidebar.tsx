@@ -1,6 +1,7 @@
 "use client";
 
 import type { CatFilters, CatTrait } from "@/types";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 interface FilterSidebarProps {
@@ -10,7 +11,12 @@ interface FilterSidebarProps {
   onChange: (filters: CatFilters) => void;
 }
 
-const quickFilters = ["kitten", "calm", "good-with-kids", "affectionate"];
+const quickFilterKeys = [
+  { slug: "kitten", key: "filters.traitKitten" },
+  { slug: "calm", key: "filters.traitCalm" },
+  { slug: "good-with-kids", key: "filters.traitGoodWithKids" },
+  { slug: "affectionate", key: "filters.traitAffectionate" },
+] as const;
 
 export function FilterSidebar({
   traits,
@@ -18,25 +24,34 @@ export function FilterSidebar({
   breeds,
   onChange,
 }: FilterSidebarProps) {
+  const { t } = useLocale();
   const selectedTraits = filters.traits?.split(",").filter(Boolean) ?? [];
 
   const toggleTrait = (slug: string) => {
     const next = selectedTraits.includes(slug)
-      ? selectedTraits.filter((t) => t !== slug)
+      ? selectedTraits.filter((item) => item !== slug)
       : [...selectedTraits, slug];
     onChange({ ...filters, traits: next.join(",") || undefined, page: 1 });
   };
 
+  const feeLabel = () => {
+    if (filters.max_fee_cents === undefined || filters.max_fee_cents >= 50000) {
+      return t("filters.anyFee");
+    }
+    if (filters.max_fee_cents === 0) return t("filters.freeOnly");
+    return t("filters.upToFee", { amount: (filters.max_fee_cents / 100).toFixed(0) });
+  };
+
   return (
     <aside className="space-y-6 rounded-2xl bg-white p-5 ring-1 ring-[#E8DFD6]">
-      <h3 className="font-semibold">Filters</h3>
+      <h3 className="font-semibold">{t("filters.title")}</h3>
 
       <section>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B5E57]">
-          Gender
+          {t("filters.gender")}
         </h4>
         <div className="flex flex-wrap gap-2">
-          {["", "male", "female"].map((g) => (
+          {(["", "male", "female"] as const).map((g) => (
             <button
               key={g || "all"}
               type="button"
@@ -48,7 +63,7 @@ export function FilterSidebar({
                   : "bg-[#F3EBE3] text-[#1C1410]",
               )}
             >
-              {g === "" ? "All" : g === "male" ? "Male" : "Female"}
+              {g === "" ? t("filters.all") : g === "male" ? t("filters.male") : t("filters.female")}
             </button>
           ))}
         </div>
@@ -56,7 +71,7 @@ export function FilterSidebar({
 
       <section>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B5E57]">
-          Breed
+          {t("filters.breed")}
         </h4>
         <select
           value={filters.breed ?? ""}
@@ -65,7 +80,7 @@ export function FilterSidebar({
           }
           className="w-full rounded-xl border border-[#E8DFD6] bg-[#FDF8F3] px-3 py-2 text-sm"
         >
-          <option value="">All Breeds</option>
+          <option value="">{t("filters.allBreeds")}</option>
           {breeds.map((breed) => (
             <option key={breed} value={breed}>
               {breed}
@@ -76,13 +91,13 @@ export function FilterSidebar({
 
       <section>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B5E57]">
-          Max Age
+          {t("filters.maxAge")}
         </h4>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: "Any", value: undefined },
-            { label: "Kitten", value: 12 },
-            { label: "Senior", value: 120 },
+            { label: t("filters.any"), value: undefined },
+            { label: t("filters.kitten"), value: 12 },
+            { label: t("filters.senior"), value: 120 },
           ].map(({ label, value }) => (
             <button
               key={label}
@@ -103,7 +118,7 @@ export function FilterSidebar({
 
       <section>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B5E57]">
-          Max Fee
+          {t("filters.maxFee")}
         </h4>
         <div className="space-y-3">
           <input
@@ -121,18 +136,12 @@ export function FilterSidebar({
             }
             className="w-full accent-[#1C1410]"
           />
-          <p className="text-sm text-[#6B5E57]">
-            {filters.max_fee_cents === undefined || filters.max_fee_cents >= 50000
-              ? "Any fee"
-              : filters.max_fee_cents === 0
-                ? "Free only"
-                : `Up to $${(filters.max_fee_cents / 100).toFixed(0)}`}
-          </p>
+          <p className="text-sm text-[#6B5E57]">{feeLabel()}</p>
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           {[
-            { label: "Any", value: undefined },
-            { label: "Free", value: 0 },
+            { label: t("filters.any"), value: undefined },
+            { label: t("filters.free"), value: 0 },
             { label: "$150+", value: 15000 },
           ].map(({ label, value }) => (
             <button
@@ -154,7 +163,7 @@ export function FilterSidebar({
 
       <section>
         <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B5E57]">
-          Personality
+          {t("filters.personality")}
         </h4>
         <div className="flex flex-wrap gap-2">
           {traits.map((trait) => (
@@ -185,28 +194,29 @@ export function QuickFilterChips({
   filters: CatFilters;
   onChange: (filters: CatFilters) => void;
 }) {
+  const { t } = useLocale();
   const selected = filters.traits?.split(",").filter(Boolean) ?? [];
 
   return (
     <div className="flex flex-wrap gap-2">
-      {quickFilters.map((slug) => (
+      {quickFilterKeys.map(({ slug, key }) => (
         <button
           key={slug}
           type="button"
           onClick={() => {
             const next = selected.includes(slug)
-              ? selected.filter((s) => s !== slug)
+              ? selected.filter((item) => item !== slug)
               : [...selected, slug];
             onChange({ ...filters, traits: next.join(",") || undefined, page: 1 });
           }}
           className={cn(
-            "rounded-full px-3 py-1 text-sm capitalize",
+            "rounded-full px-3 py-1 text-sm",
             selected.includes(slug)
               ? "bg-[#1C1410] text-white"
               : "bg-white text-[#1C1410] ring-1 ring-[#E8DFD6]",
           )}
         >
-          {slug.replace(/-/g, " ")}
+          {t(key)}
         </button>
       ))}
     </div>

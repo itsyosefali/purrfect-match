@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { forgotPassword } from "@/lib/api/profile";
 import { getApiErrorMessage } from "@/lib/api/client";
 
 export default function ForgotPasswordPage() {
   const { user, loading } = useAuth();
+  const { t } = useLocale();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
@@ -27,14 +29,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="mx-auto max-w-md space-y-6">
-      <h1 className="text-2xl font-bold">Reset Password</h1>
+      <h1 className="text-2xl font-bold">{t("auth.resetTitle")}</h1>
       {sent ? (
         <div className="rounded-2xl bg-white p-6 ring-1 ring-[#E8DFD6]">
-          <p className="text-sm text-[#6B5E57]">
-            If an account exists for {email}, you will receive a reset link shortly.
-          </p>
+          <p className="text-sm text-[#6B5E57]">{t("auth.resetSent", { email })}</p>
           <Link href="/login" className="mt-4 inline-block text-sm underline">
-            Back to login
+            {t("auth.backToLogin")}
           </Link>
         </div>
       ) : (
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
           className="space-y-4 rounded-2xl bg-white p-6 ring-1 ring-[#E8DFD6]"
         >
           <label className="block text-sm">
-            Email
+            {t("auth.email")}
             <input
               type="email"
               required
@@ -61,10 +61,10 @@ export default function ForgotPasswordPage() {
             disabled={mutation.isPending}
             className="w-full rounded-full bg-[#1C1410] py-2.5 text-sm text-white disabled:opacity-50"
           >
-            Send Reset Link
+            {t("auth.sendResetLink")}
           </button>
           <Link href="/login" className="block text-center text-sm text-[#6B5E57] underline">
-            Back to login
+            {t("auth.backToLogin")}
           </Link>
         </form>
       )}

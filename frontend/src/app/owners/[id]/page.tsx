@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ShieldCheck, Star } from "lucide-react";
 import { CatCard } from "@/components/cats/CatCard";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { fetchPublicUser } from "@/lib/api/profile";
 
 export default function OwnerProfilePage({
@@ -14,6 +15,7 @@ export default function OwnerProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const { t } = useLocale();
   const userId = Number(id);
 
   const { data: owner, isLoading, error } = useQuery({
@@ -23,17 +25,17 @@ export default function OwnerProfilePage({
   });
 
   if (isLoading) {
-    return <p className="text-[#6B5E57]">Loading profile…</p>;
+    return <p className="text-[#6B5E57]">{t("owner.loading")}</p>;
   }
 
   if (error || !owner) {
     return (
       <EmptyState
-        title="Owner not found"
-        description="This profile may no longer exist."
+        title={t("owner.notFound")}
+        description={t("owner.notFoundBody")}
         action={
           <Link href="/" className="rounded-full bg-[#1C1410] px-4 py-2 text-sm text-white">
-            Browse cats
+            {t("owner.browseCats")}
           </Link>
         }
       />
@@ -55,24 +57,26 @@ export default function OwnerProfilePage({
           <h1 className="text-2xl font-bold">
             {owner.name}
             {owner.is_verified ? (
-              <ShieldCheck className="ml-2 inline h-5 w-5 text-emerald-600" />
+              <ShieldCheck className="ms-2 inline h-5 w-5 text-emerald-600" />
             ) : null}
           </h1>
           {owner.city ? <p className="text-[#6B5E57]">{owner.city}</p> : null}
           <div className="mt-1 flex items-center gap-1 text-sm">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            {owner.rating.toFixed(1)} ({owner.review_count} reviews)
+            {owner.rating.toFixed(1)} ({owner.review_count} {t("owner.reviews")})
           </div>
           <p className="mt-1 text-sm text-[#6B5E57]">
-            {owner.response_rate}% response rate · typically replies in{" "}
-            {owner.avg_response_minutes} mins
+            {t("detail.responseRate", {
+              rate: owner.response_rate,
+              minutes: owner.avg_response_minutes,
+            })}
           </p>
         </div>
       </div>
 
       <section>
         <h2 className="mb-4 text-lg font-semibold">
-          Listings ({owner.listings?.length ?? 0})
+          {t("owner.listings")} ({owner.listings?.length ?? 0})
         </h2>
         {owner.listings?.length ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -81,7 +85,10 @@ export default function OwnerProfilePage({
             ))}
           </div>
         ) : (
-          <EmptyState title="No active listings" description="This owner has no cats listed right now." />
+          <EmptyState
+            title={t("listings.emptyTitle")}
+            description={t("listings.emptyBody")}
+          />
         )}
       </section>
     </div>

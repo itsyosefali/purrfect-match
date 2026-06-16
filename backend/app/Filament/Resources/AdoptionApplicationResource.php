@@ -6,6 +6,8 @@ use App\Enums\ApplicationStatus;
 use App\Filament\Resources\AdoptionApplicationResource\Pages;
 use App\Models\AdoptionApplication;
 use BackedEnum;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -41,8 +43,8 @@ class AdoptionApplicationResource extends Resource
                     ->options(collect(ApplicationStatus::cases())->mapWithKeys(fn ($s) => [$s->value => ucfirst($s->value)])),
             ])
             ->recordActions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
             ]);
     }
 

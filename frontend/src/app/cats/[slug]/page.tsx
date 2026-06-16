@@ -11,8 +11,9 @@ import { ReportModal } from "@/components/cats/ReportModal";
 import { ReviewsSection } from "@/components/cats/ReviewsSection";
 import { ContactModal } from "@/components/messages/ContactModal";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
 import { fetchCat } from "@/lib/api/cats";
-import { formatFee, genderLabel } from "@/lib/utils";
+import { formatFee } from "@/lib/utils";
 
 export default function CatDetailPage({
   params,
@@ -22,6 +23,7 @@ export default function CatDetailPage({
   const { slug } = use(params);
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useLocale();
   const [showContact, setShowContact] = useState(false);
   const [showApply, setShowApply] = useState(false);
   const [showReport, setShowReport] = useState(false);
@@ -43,12 +45,10 @@ export default function CatDetailPage({
   if (error || !cat) {
     return (
       <div className="rounded-2xl bg-white p-12 text-center ring-1 ring-[#E8DFD6]">
-        <p className="mb-2 font-medium">Cat not found</p>
-        <p className="mb-4 text-sm text-[#6B5E57]">
-          This listing may have been removed or the link is incorrect.
-        </p>
+        <p className="mb-2 font-medium">{t("detail.catNotFound")}</p>
+        <p className="mb-4 text-sm text-[#6B5E57]">{t("detail.notFoundBody")}</p>
         <Link href="/" className="rounded-full bg-[#1C1410] px-4 py-2 text-sm text-white">
-          Back to browse
+          {t("detail.backToBrowse")}
         </Link>
       </div>
     );
@@ -66,7 +66,7 @@ export default function CatDetailPage({
   return (
     <>
       <Link href="/" className="mb-4 inline-block text-sm text-[#6B5E57] hover:text-[#1C1410]">
-        ← Back to browse
+        ← {t("detail.backToBrowse")}
       </Link>
       <article className="overflow-hidden rounded-2xl bg-white ring-1 ring-[#E8DFD6]">
         <PhotoGallery photos={photos} alt={cat.name} className="md:aspect-[21/9]" />
@@ -75,17 +75,17 @@ export default function CatDetailPage({
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium capitalize text-emerald-800">
-                  {cat.status}
+                  {t(`status.${cat.status}`)}
                 </span>
                 {cat.is_featured ? (
                   <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                    Featured
+                    {t("cat.featured")}
                   </span>
                 ) : null}
               </div>
               <h1 className="mt-2 text-3xl font-bold">{cat.name}</h1>
               <p className="text-[#6B5E57]">
-                {cat.breed} · {cat.age_label} · {genderLabel(cat.gender)}
+                {cat.breed} · {cat.age_label} · {cat.gender === "male" ? t("filters.male") : t("filters.female")}
               </p>
               <div className="mt-1 flex items-center gap-1 text-sm">
                 <Star className="h-4 w-4 fill-amber-400 text-amber-400" />

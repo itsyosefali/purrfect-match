@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -54,7 +55,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('cat_listings_count')->counts('catListings')->label('Listings'),
             ])
             ->recordActions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ]);
     }
 
