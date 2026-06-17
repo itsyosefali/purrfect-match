@@ -32,6 +32,7 @@ x-backend-env: &backend-env
   REVERB_HOST: ${REVERB_HOST:-reverb}
   REVERB_PORT: ${REVERB_PORT:-8080}
   REVERB_SCHEME: ${REVERB_SCHEME:-http}
+  WASEL_API_URL: ${WASEL_API_URL:-https://wasl.itsyosefali.cloud/api/v1}
   AUTO_SEED: ${AUTO_SEED:-false}
 
 services:
