@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,18 +14,29 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function __construct(
+        private OtpService $otpService,
+    ) {}
+
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'phone' => ['required', 'string', 'max:20', 'unique:users,phone'],
+            'otp' => ['required', 'string', 'size:6'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'city' => ['nullable', 'string', 'max:150'],
         ]);
 
+        $phone = $this->otpService->normalizePhone($validated['phone']);
+        $this->otpService->verify($phone, $validated['otp']);
+
         $user = User::create([
             'name' => $validated['name'],
-            'email' => $validated['email'],
+            'phone' => $phone,
+            'phone_verified_at' => now(),
+            'email' => $validated['email'] ?? null,
             'password' => $validated['password'],
             'city' => $validated['city'] ?? null,
         ]);

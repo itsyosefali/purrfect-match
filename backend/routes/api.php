@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CatListingController;
 use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\PhoneOtpController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ReviewController;
@@ -21,6 +22,7 @@ Route::get('/cats/{slug}', [CatListingController::class, 'show'])->name('api.cat
 Route::get('/cats/{slug}/reviews', [ReviewController::class, 'index']);
 Route::get('/users/{user}', [ProfileController::class, 'show']);
 
+Route::post('/auth/otp/send', [PhoneOtpController::class, 'send'])->middleware('throttle:5,1');
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 Route::post('/forgot-password', [PasswordResetController::class, 'forgotPassword'])->middleware('throttle:5,1');

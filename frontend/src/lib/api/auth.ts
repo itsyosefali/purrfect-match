@@ -6,6 +6,11 @@ export async function fetchUser() {
   return data.data;
 }
 
+export async function sendRegistrationOtp(phone: string) {
+  await ensureCsrfCookie();
+  await api.post("/auth/otp/send", { phone });
+}
+
 export async function login(email: string, password: string) {
   await ensureCsrfCookie();
   const { data } = await api.post<{ user: User }>("/login", {
@@ -17,9 +22,11 @@ export async function login(email: string, password: string) {
 
 export async function register(payload: {
   name: string;
-  email: string;
+  phone: string;
+  otp: string;
   password: string;
   password_confirmation: string;
+  email?: string;
   city?: string;
 }) {
   await ensureCsrfCookie();

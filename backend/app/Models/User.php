@@ -20,11 +20,13 @@ class User extends Authenticatable implements FilamentUser
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
         'avatar_url',
         'city',
         'is_admin',
         'identity_verified_at',
+        'phone_verified_at',
         'rating',
         'review_count',
         'response_rate',
@@ -40,6 +42,7 @@ class User extends Authenticatable implements FilamentUser
     {
         return [
             'email_verified_at' => 'datetime',
+            'phone_verified_at' => 'datetime',
             'identity_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',

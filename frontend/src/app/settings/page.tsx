@@ -119,7 +119,7 @@ export default function SettingsPage() {
             className="mt-1 w-full rounded-xl border border-[#E8DFD6] px-3 py-2"
           />
         </label>
-        <p className="text-sm text-[#6B5E57]">{t("settings.email", { email: user.email })}</p>
+        <p className="text-sm text-[#6B5E57]">{t("settings.email", { email: user.email ?? "—" })}</p>
         {profileMsg ? <p className="text-sm text-emerald-600">{profileMsg}</p> : null}
         {profileErr ? <p className="text-sm text-red-600">{profileErr}</p> : null}
         <button

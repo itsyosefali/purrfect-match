@@ -18,7 +18,8 @@ export interface UserSummary {
 }
 
 export interface User extends UserSummary {
-  email: string;
+  email: string | null;
+  phone: string | null;
   is_admin: boolean;
 }
 
